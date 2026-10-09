@@ -47,6 +47,13 @@ func TestClientAuthentication(t *testing.T) {
 		}
 		t.Run(name, func(t *testing.T) {
 			cluster := egtest.New(t, egtest.Options{EGVersion: "v1.9.1", K3SVersion: "v1.33.13-k3s2", HelmValues: []byte(helm)})
+			t.Cleanup(func() {
+				// Close is idempotent; record evidence after removal, before New's fallback cleanup.
+				if err := cluster.Close(); err != nil {
+					t.Error(err)
+				}
+				t.Logf("cluster cleanup: %s", cluster.Info().Cleanup)
+			})
 			if err := cluster.Apply(t.Context(), redis); err != nil {
 				t.Fatal(err)
 			}

@@ -1,5 +1,7 @@
 # Envoy Gateway / RLS client certificate reproducer
 
+[![test](https://github.com/dio/eg-rls-mtls-repro/actions/workflows/test.yaml/badge.svg)](https://github.com/dio/eg-rls-mtls-repro/actions/workflows/test.yaml)
+
 A small Go integration test using [egtest](https://github.com/dio/egtest) to
 compare client authentication on an Envoy Gateway-managed rate-limit service.
 It creates two disposable k3d clusters, one per configuration, and removes them
@@ -76,3 +78,11 @@ observed missing/untrusted client rejection and trusted-client access with the
 correction. After refining the TLS-alert assertions, the final corrected-case
 reruns timed out pulling the Envoy Gateway image during setup. A completely
 passing run of the final suite has therefore not yet been recorded.
+
+GitHub Actions runs compilation/vet and a separate Linux live job on every push,
+pull request, and manual dispatch. The live job checks Docker Hub connectivity
+with up to three image-pull attempts before running the test once. Assertion
+failures are not automatically retried. The `live-result` artifact contains the
+test log and a post-run resource cleanup check; use the linked run for current
+results. The preflight image is pulled into the host Docker daemon, while k3d
+nodes have separate containerd stores and still pull their own images.
