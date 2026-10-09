@@ -38,6 +38,7 @@ jobs:
           done
           exit 1
       - name: Reproduce and verify client authentication
+        id: probe
         env:
           RUN_EG: '1'
         shell: bash
@@ -45,6 +46,7 @@ jobs:
           set -o pipefail
           go test -v -count=1 -timeout=25m ./... 2>&1 | tee live-test.log
       - name: Verify no owned cluster resources remain
+        id: cleanup
         if: always()
         shell: bash
         run: |
@@ -59,6 +61,12 @@ jobs:
             exit 1
           fi
           echo 'No egtest containers, networks, or volumes remain' | tee cleanup.txt
+      - name: Summarize expectations and results
+        if: always()
+        env:
+          PROBE_OUTCOME: ${{ steps.probe.outcome }}
+          CLEANUP_OUTCOME: ${{ steps.cleanup.outcome }}
+        run: python3 .github/scripts/summarize.py
       - name: Upload test and cleanup evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -67,4 +75,5 @@ jobs:
           path: |
             live-test.log
             cleanup.txt
+            summary.md
           if-no-files-found: warn

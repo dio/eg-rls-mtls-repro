@@ -70,19 +70,15 @@ are ephemeral; private keys are neither printed nor committed.
 - [EG v1.9.1 generated RLS environment](https://github.com/envoyproxy/gateway/blob/v1.9.1/internal/infrastructure/kubernetes/ratelimit/resource.go)
 - [RLS settings and client-authentication selection](https://github.com/envoyproxy/ratelimit/blob/8fe6ea421048bdb2a8873d5f676b3f6eac76a997/src/settings/settings.go)
 
-## Validation status
+## CI results
 
-Locally checked on macOS/arm64: compilation, `go vet`, and all four generated-
-configuration probes passed on the committed test. Earlier live runs also
-observed missing/untrusted client rejection and trusted-client access with the
-correction. After refining the TLS-alert assertions, the final corrected-case
-reruns timed out pulling the Envoy Gateway image during setup. A completely
-passing run of the final suite has therefore not yet been recorded.
+[GitHub Actions](https://github.com/dio/eg-rls-mtls-repro/actions/workflows/test.yaml)
+runs compilation/vet and a separate Linux live job on every push, pull request,
+and manual dispatch. Each live job summary explains the test, lists the expected
+behavior and actual result for every client, and reports cleanup status.
 
-GitHub Actions runs compilation/vet and a separate Linux live job on every push,
-pull request, and manual dispatch. The live job checks Docker Hub connectivity
-with up to three image-pull attempts before running the test once. Assertion
-failures are not automatically retried. The `live-result` artifact contains the
-test log and a post-run resource cleanup check; use the linked run for current
-results. The preflight image is pulled into the host Docker daemon, while k3d
-nodes have separate containerd stores and still pull their own images.
+The live job checks Docker Hub connectivity with up to three image-pull attempts
+before running the test once. Assertion failures are not automatically retried.
+The `live-result` artifact contains the test log and a post-run resource cleanup
+check. The preflight image is pulled into the host Docker daemon, while k3d nodes
+have separate containerd stores and still pull their own images.
